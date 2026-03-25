@@ -1,0 +1,41 @@
+CITYSHIELD — Live IoT Threat Intelligence Dashboard
+Project context:
+Build a real-time smart city IoT threat intelligence dashboard called "CityShield". This is a hackathon project simulating a 
+large-scale IoT security monitoring system. There are no real IoT devices — a Python replay engine streams rows from the 
+CICIoT2023 dataset into a Kafka topic, simulating 105 smart city devices across 7 city zones.
+
+Tech stack:
+
+Frontend: React + Recharts + D3.js
+Real-time updates: WebSocket connection to backend
+Backend: Python FastAPI serving a WebSocket endpoint
+ML: Pre-trained scikit-learn Random Forest model (loaded via joblib) doing inference on incoming Kafka events
+Blockchain: SHA-256 hash chaining of event batches (no actual blockchain node needed — simulate it with a hash chain in
+memory/SQLite)
+Styling: Dark terminal/cyberpunk aesthetic, monospace fonts (IBM Plex Mono or Orbitron), deep navy/black background with cyan 
+and red accents
+
+Dashboard must have 4 panels:
+
+Live attack feed — scrolling table of real-time events showing: timestamp, device ID, zone name, attack type (DDoS / DoS / Mirai / 
+Spoofing / Recon / BruteForce / Web), ML confidence score (%), severity badge (Critical / High / Medium / Low), blockchain
+verified checkmark
+
+Threat map — SVG city grid of 7 zones (Downtown, Airport, Harbor, Industrial, Residential, University, Hospital). Each zone is a 
+labeled rectangle that pulses red/orange/yellow based on current threat severity. Clicking a zone shows its recent events.
+
+ML confidence panel — live AreaChart (Recharts) showing attack event rate over time, plus a BarChart showing distribution of a
+ttack types detected so far. Each bar colored by attack type.
+
+Blockchain integrity panel — shows the last 6 batch hashes in a chain visualization (each block shows: batch number, SHA-256 hash
+ truncated, timestamp, event count, "VERIFIED" or "TAMPERED" status). Animate a new block appearing every ~10 seconds.
+
+Behavior:
+
+Simulate live data with setInterval generating a random event every 1.5–2 seconds (no real backend needed for the prototype —
+mock the WebSocket with interval-based state updates)
+All 4 panels update in real time
+Header shows: live device count, active threat count, blockchain verification percentage, pause/resume button, blinking live 
+indicator
+The app should feel alive — pulsing dots on critical zones, sliding animations on new feed entries, glowing accents on critical 
+severity items
