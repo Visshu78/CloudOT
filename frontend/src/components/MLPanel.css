@@ -1,0 +1,27 @@
+.ml-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 10px;
+}
+
+.chart-section {
+  flex: 1;
+}
+
+.chart-label {
+  font-size: 9px;
+  color: var(--text-secondary);
+  letter-spacing: 1.5px;
+  margin-bottom: 6px;
+}
+
+.chart-tooltip {
+  background: var(--bg-secondary);
+  border: 1px solid var(--bg-panel-border);
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 10px;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}

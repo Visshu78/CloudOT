@@ -1,0 +1,76 @@
+.feed-panel { }
+
+.feed-count {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+.feed-body {
+  padding: 0;
+}
+
+.feed-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  font-family: var(--font-mono);
+}
+
+.feed-table thead th {
+  padding: 6px 8px;
+  text-align: left;
+  color: var(--text-secondary);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  border-bottom: 1px solid var(--bg-panel-border);
+  position: sticky;
+  top: 0;
+  background: var(--bg-panel);
+  z-index: 1;
+}
+
+.feed-table tbody tr {
+  border-bottom: 1px solid rgba(26, 37, 64, 0.5);
+  transition: background 0.2s;
+}
+
+.feed-table tbody tr:hover {
+  background: rgba(0, 245, 255, 0.04);
+}
+
+.feed-table td {
+  padding: 5px 8px;
+  white-space: nowrap;
+}
+
+.row-critical {
+  background: rgba(255, 45, 85, 0.05);
+}
+
+.td-time { color: var(--text-secondary); font-size: 10px; }
+.td-device { color: var(--cyan-dim); }
+.td-zone { color: var(--text-primary); }
+.td-conf { color: var(--text-secondary); }
+
+.td-attack { font-weight: 600; }
+.attack-ddos { color: #ff2d55; }
+.attack-dos { color: #ff6b35; }
+.attack-mirai { color: #ff9f0a; }
+.attack-spoofing { color: #bf5af2; }
+.attack-recon { color: #64d2ff; }
+.attack-bruteforce { color: #ff375f; }
+.attack-web { color: #30d158; }
+
+.badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-size: 9px;
+  letter-spacing: 1px;
+  font-family: var(--font-heading);
+}
+
+.td-verify { text-align: center; }
+.verified-check { color: var(--cyan); font-size: 12px; }

@@ -1,0 +1,63 @@
+.map-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+}
+
+.city-map {
+  width: 100%;
+  height: auto;
+  flex-shrink: 0;
+}
+
+@keyframes zone-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.zone-critical {
+  animation: zone-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes dot-pulse {
+  0%, 100% { r: 4; opacity: 1; }
+  50% { r: 7; opacity: 0.4; }
+}
+
+.pulse-dot {
+  animation: dot-pulse 1s ease-in-out infinite;
+}
+
+.zone-detail {
+  background: rgba(0, 245, 255, 0.04);
+  border: 1px solid var(--bg-panel-border);
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-size: 10px;
+}
+
+.zone-detail-title {
+  color: var(--cyan);
+  font-family: var(--font-heading);
+  font-size: 9px;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.zone-no-events {
+  color: var(--text-dim);
+  font-size: 10px;
+}
+
+.zone-event-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(26, 37, 64, 0.5);
+}
+
+.ze-type { color: var(--text-primary); min-width: 70px; }
+.ze-conf { color: var(--text-secondary); margin-left: auto; }
+.ze-device { color: var(--cyan-dim); font-size: 9px; }

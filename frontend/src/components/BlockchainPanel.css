@@ -1,0 +1,116 @@
+.chain-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+}
+
+.chain-empty {
+  color: var(--text-dim);
+  font-size: 11px;
+  text-align: center;
+  padding: 20px;
+}
+
+.chain-container {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.chain-item-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.chain-block {
+  min-width: 110px;
+  border-radius: 6px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  border: 1px solid;
+}
+
+.block-verified {
+  border-color: var(--cyan-dim);
+  background: rgba(0, 245, 255, 0.05);
+}
+
+.block-tampered {
+  border-color: var(--red);
+  background: rgba(255, 45, 85, 0.08);
+  animation: pulse-red 1.5s ease-in-out infinite;
+}
+
+.block-num {
+  font-family: var(--font-heading);
+  font-size: 9px;
+  color: var(--text-secondary);
+  letter-spacing: 1px;
+}
+
+.block-hash {
+  color: var(--cyan-dim);
+  font-size: 9px;
+  letter-spacing: 0.5px;
+}
+
+.block-tampered .block-hash {
+  color: var(--red);
+}
+
+.block-meta {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-dim);
+  font-size: 8px;
+}
+
+.block-status {
+  font-family: var(--font-heading);
+  font-size: 8px;
+  letter-spacing: 1px;
+  margin-top: 2px;
+}
+
+.status-ok { color: var(--cyan); }
+.status-bad { color: var(--red); }
+
+.chain-link {
+  color: var(--cyan-dim);
+  font-size: 12px;
+  letter-spacing: -3px;
+  padding: 0 2px;
+}
+
+.chain-link.link-broken {
+  color: var(--red);
+}
+
+.chain-legend {
+  display: flex;
+  gap: 16px;
+  font-size: 9px;
+  color: var(--text-dim);
+  margin-top: auto;
+  padding-top: 6px;
+  border-top: 1px solid var(--bg-panel-border);
+}
+
+.legend-ok { color: var(--cyan); }
+.legend-bad { color: var(--red); }
+.chain-count {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
