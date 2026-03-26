@@ -24,11 +24,15 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# ML models / data
+# ML models / data / DB
 *.pkl
 *.joblib
 *.csv
 archive.zip
+*.pth
+*.pt
+*.db
+cityshield.db
 
 # OS
 .DS_Store

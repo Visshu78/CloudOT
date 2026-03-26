@@ -4,3 +4,8 @@ websockets
 scikit-learn
 joblib
 numpy
+pandas
+torch
+torchvision
+torchaudio
+sqlalchemy
