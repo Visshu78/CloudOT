@@ -52,4 +52,3 @@ graph LR
 2. **Create the Producer Script**: A new file (e.g., `kafka_producer.py`) that reads `val_dataset.pt` or the original CSV and sends it to a Kafka topic.
 3. **Update the Backend**: Modify `main.py` and `event_engine.py` to connect to Kafka, consume the messages, run the ML prediction, and emit to WebSockets.
 
-Once you have read through this, let me know, and we can begin Step 1: Setting up Kafka locally!
