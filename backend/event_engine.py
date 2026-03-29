@@ -4,6 +4,7 @@ from datetime import datetime
 import joblib
 import torch
 import os
+import numpy as np
 
 ZONES = ["Downtown", "Airport", "Harbor", "Industrial", "Residential", "University", "Hospital"]
 
@@ -45,15 +46,9 @@ def generate_device_id(zone: str, idx: int) -> str:
     prefix = zone[:3].upper()
     return f"{prefix}-{idx:03d}"
 
-def generate_event() -> dict:
-    zone = random.choice(ZONES)
-    device_idx = random.randint(1, DEVICES_PER_ZONE)
-    device_id = generate_device_id(zone, device_idx)
-    
+def predict_event(features: list) -> tuple[str, float, str]:
     if engine_ready:
-        # Pick a random sample from our preprocessed validation set
-        idx = random.randint(0, len(X_val_np) - 1)
-        sample = X_val_np[idx].reshape(1, -1)
+        sample = np.array(features).reshape(1, -1)
         
         # Scikit-Learn Prediction
         probs = rf_model.predict_proba(sample)[0]
@@ -69,6 +64,21 @@ def generate_event() -> dict:
         confidence = round(max(20.0, min(99.9, base)), 1)
         
     severity = severity_from_confidence(confidence)
+    return attack_type, confidence, severity
+
+def generate_event() -> dict:
+    zone = random.choice(ZONES)
+    device_idx = random.randint(1, DEVICES_PER_ZONE)
+    device_id = generate_device_id(zone, device_idx)
+    
+    if engine_ready:
+        # Pick a random sample from our preprocessed validation set
+        idx = random.randint(0, len(X_val_np) - 1)
+        features = X_val_np[idx].tolist()
+    else:
+        features = []
+        
+    attack_type, confidence, severity = predict_event(features)
 
     return {
         "id": str(uuid.uuid4()),

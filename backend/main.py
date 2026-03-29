@@ -3,7 +3,8 @@ import json
 import random
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from event_engine import generate_event
+from aiokafka import AIOKafkaConsumer
+from event_engine import predict_event
 from blockchain import BlockchainManager
 
 import models_db
@@ -26,16 +27,44 @@ blockchain = BlockchainManager()
 connected_clients: list[WebSocket] = []
 
 
-@app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-    connected_clients.append(websocket)
-    db = SessionLocal()  # Open a database session
+async def consume_kafka():
+    consumer = AIOKafkaConsumer(
+        'iot-traffic',
+        bootstrap_servers='localhost:9092',
+        group_id="cityshield-backend",
+        value_deserializer=lambda m: json.loads(m.decode('utf-8'))
+    )
+    
+    # Wait for Kafka to be ready (retry loop)
+    while True:
+        try:
+            await consumer.start()
+            print("Connected to Kafka.")
+            break
+        except Exception as e:
+            print(f"Waiting for Kafka: {e}")
+            await asyncio.sleep(5)
+
+    db = SessionLocal()
     try:
-        while True:
-            await asyncio.sleep(random.uniform(1.5, 2.0))
-            event = generate_event()
+        async for msg in consumer:
+            data = msg.value
+            features = data.get("features", [])
             
+            # Predict in a thread to prevent blocking the event loop
+            attack_type, confidence, severity = await asyncio.to_thread(predict_event, features)
+            
+            event = {
+                "id": data["id"],
+                "timestamp": data["timestamp"],
+                "device_id": data["device_id"],
+                "zone": data["zone"],
+                "attack_type": attack_type,
+                "confidence": confidence,
+                "severity": severity,
+                "verified": True,
+            }
+
             # --- DATABASE PERSISTENCE: EVENT ---
             db_event = models_db.EventLog(
                 id=event["id"],
@@ -74,12 +103,42 @@ async def websocket_endpoint(websocket: WebSocket):
                 db.commit()
 
             message = json.dumps(payload)
-            await websocket.send_text(message)
-    except WebSocketDisconnect:
-        connected_clients.remove(websocket)
+            
+            # Broadcast to all connected clients
+            disconnected = []
+            for client in connected_clients:
+                try:
+                    await client.send_text(message)
+                except Exception:
+                    disconnected.append(client)
+            for d in disconnected:
+                if d in connected_clients:
+                    connected_clients.remove(d)
+
     except Exception as e:
-        print(f"WebSocket Loop Database Error: {e}")
+        print(f"Kafka Consumer Error: {e}")
+    finally:
+        await consumer.stop()
+        db.close()
+
+
+@app.on_event("startup")
+async def startup_event():
+    asyncio.create_task(consume_kafka())
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    connected_clients.append(websocket)
+    try:
+        while True:
+            # Just keep the connection open and wait for messages from client if any
+            # or just wait for disconnect
+            data = await websocket.receive_text()
+    except WebSocketDisconnect:
         if websocket in connected_clients:
             connected_clients.remove(websocket)
-    finally:
-        db.close()
+    except Exception as e:
+        print(f"WebSocket Error: {e}")
+        if websocket in connected_clients:
+            connected_clients.remove(websocket)

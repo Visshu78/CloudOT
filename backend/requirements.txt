@@ -9,3 +9,5 @@ torch
 torchvision
 torchaudio
 sqlalchemy
+aiokafka
+kafka-python
