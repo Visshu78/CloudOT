@@ -11,3 +11,6 @@ torchaudio
 sqlalchemy
 aiokafka
 kafka-python
+pytest
+httpx
+pytest-asyncio

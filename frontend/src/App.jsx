@@ -62,6 +62,22 @@ export default function App() {
   const wsRef = useRef(null)
   const intervalRef = useRef(null)
 
+  // --- Seed historical data from REST API on mount ---
+  useEffect(() => {
+    fetch('http://localhost:8000/api/events/recent?limit=100')
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0)
+          setEvents(data.slice().reverse()) // newest first
+      })
+      .catch(() => {}) // silently ignore if backend is offline
+
+    fetch('http://localhost:8000/api/blocks/recent?limit=20')
+      .then(r => r.json())
+      .then(data => { if (Array.isArray(data)) setBlocks(data) })
+      .catch(() => {})
+  }, [])
+
   const addEvent = useCallback((event) => {
     if (isPaused) return
     setEvents(prev => [event, ...prev].slice(0, 200))
@@ -120,11 +136,12 @@ export default function App() {
   const activeThreats = events.filter(e => e.severity === 'Critical' || e.severity === 'High').length
   const verifiedCount = blocks.filter(b => b.status === 'VERIFIED').length
   const blockchainPct = blocks.length > 0 ? Math.round((verifiedCount / blocks.length) * 100) : 100
+  const deviceCount = new Set(events.map(e => e.device_id)).size || 105
 
   return (
     <div className="app-layout">
       <Header
-        deviceCount={105}
+        deviceCount={deviceCount}
         activeThreats={activeThreats}
         blockchainPct={blockchainPct}
         isPaused={isPaused}

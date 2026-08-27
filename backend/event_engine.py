@@ -8,6 +8,17 @@ import numpy as np
 
 ZONES = ["Downtown", "Airport", "Harbor", "Industrial", "Residential", "University", "Hospital"]
 
+ATTACK_TYPES = ["DDoS", "DoS", "Mirai", "Spoofing", "Recon", "BruteForce", "Web"]
+ZONE_PREFIXES = {
+    "Downtown": "DWN",
+    "Airport": "AIR",
+    "Harbor": "HAR",
+    "Industrial": "IND",
+    "Residential": "RES",
+    "University": "UNI",
+    "Hospital": "HOS"
+}
+
 # Load the Random Forest Model and Preprocessors
 try:
     preprocessors = joblib.load("preprocessors.joblib")
@@ -26,9 +37,6 @@ try:
 except Exception as e:
     print(f"[Warning] ML model failed to load in event_engine: {e}. Falling back to mocks.")
     engine_ready = False
-    
-    # Mock fallback
-    ATTACK_TYPES = ["DDoS", "DoS", "Mirai", "Spoofing", "Recon", "BruteForce", "Web"]
 
 DEVICES_PER_ZONE = 15
 
@@ -43,7 +51,7 @@ def severity_from_confidence(confidence: float) -> str:
         return "Low"
 
 def generate_device_id(zone: str, idx: int) -> str:
-    prefix = zone[:3].upper()
+    prefix = ZONE_PREFIXES.get(zone, zone[:3].upper())
     return f"{prefix}-{idx:03d}"
 
 def predict_event(features: list) -> tuple[str, float, str]:

@@ -16,10 +16,19 @@ except Exception as e:
     exit(1)
 
 ZONES = ["Downtown", "Airport", "Harbor", "Industrial", "Residential", "University", "Hospital"]
+ZONE_PREFIXES = {
+    "Downtown": "DWN",
+    "Airport": "AIR",
+    "Harbor": "HAR",
+    "Industrial": "IND",
+    "Residential": "RES",
+    "University": "UNI",
+    "Hospital": "HOS"
+}
 DEVICES_PER_ZONE = 15
 
 def generate_device_id(zone: str, idx: int) -> str:
-    prefix = zone[:3].upper()
+    prefix = ZONE_PREFIXES.get(zone, zone[:3].upper())
     return f"{prefix}-{idx:03d}"
 
 def get_producer():

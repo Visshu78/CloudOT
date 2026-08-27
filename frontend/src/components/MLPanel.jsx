@@ -5,7 +5,7 @@ import {
 } from 'recharts'
 import './MLPanel.css'
 
-const ATTACK_COLORS = {
+const KNOWN_ATTACK_COLORS = {
   DDoS: '#ff2d55',
   DoS: '#ff6b35',
   Mirai: '#ff9f0a',
@@ -13,9 +13,29 @@ const ATTACK_COLORS = {
   Recon: '#64d2ff',
   BruteForce: '#ff375f',
   Web: '#30d158',
+  BenignTraffic: '#3a86ff',
+  'MITM-ArpSpoofing': '#8338ec',
+  PortScan: '#06d6a0',
+  Ransomware: '#ef233c',
+  XSS: '#f72585',
+  SqlInjection: '#4cc9f0',
+  CommandInjection: '#ffd60a',
 }
 
-const ATTACK_TYPES = ['DDoS', 'DoS', 'Mirai', 'Spoofing', 'Recon', 'BruteForce', 'Web']
+const FALLBACK_PALETTE = [
+  '#0ea5e9', '#a855f7', '#ec4899', '#14b8a6',
+  '#f59e0b', '#84cc16', '#6366f1', '#f97316',
+]
+const _colorCache = {}
+let _colorIdx = 0
+function getAttackColor(type) {
+  if (KNOWN_ATTACK_COLORS[type]) return KNOWN_ATTACK_COLORS[type]
+  if (!_colorCache[type]) {
+    _colorCache[type] = FALLBACK_PALETTE[_colorIdx % FALLBACK_PALETTE.length]
+    _colorIdx++
+  }
+  return _colorCache[type]
+}
 
 export default function MLPanel({ events }) {
   // Event rate: bucket into 10-second windows
@@ -36,12 +56,14 @@ export default function MLPanel({ events }) {
       }))
   }, [events])
 
-  // Attack type distribution
+  // Attack type distribution — dynamic, works with any label from the ML model
   const distData = useMemo(() => {
     const counts = {}
-    ATTACK_TYPES.forEach(t => { counts[t] = 0 })
-    events.forEach(ev => { if (counts[ev.attack_type] !== undefined) counts[ev.attack_type]++ })
-    return ATTACK_TYPES.map(t => ({ type: t, count: counts[t] }))
+    events.forEach(ev => { counts[ev.attack_type] = (counts[ev.attack_type] || 0) + 1 })
+    return Object.entries(counts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 10)  // show top 10 types max
+      .map(([type, count]) => ({ type, count }))
   }, [events])
 
   const CustomTooltip = ({ active, payload }) => {
@@ -92,7 +114,7 @@ export default function MLPanel({ events }) {
               <Tooltip content={<CustomTooltip />} />
               <Bar dataKey="count" radius={[2, 2, 0, 0]}>
                 {distData.map((entry) => (
-                  <Cell key={entry.type} fill={ATTACK_COLORS[entry.type]} />
+                  <Cell key={entry.type} fill={getAttackColor(entry.type)} />
                 ))}
               </Bar>
             </BarChart>
