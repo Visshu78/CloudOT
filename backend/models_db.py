@@ -12,6 +12,8 @@ class EventLog(Base):
     confidence = Column(Float)
     severity = Column(String)
     verified = Column(Boolean)
+    server_id = Column(String, index=True)
+    server_ip = Column(String)
 
 class BlockChain(Base):
     __tablename__ = "blocks"

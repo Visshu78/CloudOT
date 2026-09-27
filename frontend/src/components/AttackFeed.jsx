@@ -28,6 +28,7 @@ export default function AttackFeed({ events }) {
           <thead>
             <tr>
               <th>TIME</th>
+              <th>SERVER GATEWAY</th>
               <th>DEVICE</th>
               <th>ZONE</th>
               <th>ATTACK</th>
@@ -38,11 +39,14 @@ export default function AttackFeed({ events }) {
           </thead>
           <tbody ref={tbodyRef}>
             {events.map((ev, i) => (
-              <tr key={ev.id} className={`feed-row ${i === 0 ? 'animate-slide-in' : ''} ${ev.severity === 'Critical' ? 'row-critical' : ''}`}>
+              <tr key={`${ev.id || i}-${i}`} className={`feed-row ${i === 0 ? 'animate-slide-in' : ''} ${(ev.severity || '') === 'Critical' ? 'row-critical' : ''}`}>
                 <td className="td-time">{formatTime(ev.timestamp)}</td>
+                <td className="td-server" title={ev.server_ip || '10.240.1.101'} style={{ color: '#00f0ff', fontSize: '0.8rem', fontFamily: 'monospace' }}>
+                  {ev.server_id || 'EDGE-SRV-01'}
+                </td>
                 <td className="td-device">{ev.device_id}</td>
                 <td className="td-zone">{ev.zone}</td>
-                <td className={`td-attack attack-${ev.attack_type.toLowerCase()}`}>{ev.attack_type}</td>
+                <td className={`td-attack attack-${(ev.attack_type || 'unknown').toLowerCase().replace(/[^a-z]/g, '')}`}>{ev.attack_type || 'Unknown'}</td>
                 <td className="td-conf">{ev.confidence}%</td>
                 <td><span className={`badge ${SEVERITY_CLASS[ev.severity]}`}>{ev.severity}</span></td>
                 <td className="td-verify">{ev.verified ? <span className="verified-check">✔</span> : '✗'}</td>

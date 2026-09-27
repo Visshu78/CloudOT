@@ -45,3 +45,6 @@ Thumbs.db
 
 # Misc
 Overview_utf8.txt
+
+# Runtime-generated HDFS data blocks (not needed in repo)
+backend/hdfs_datanode_storage/

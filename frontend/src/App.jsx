@@ -4,6 +4,7 @@ import AttackFeed from './components/AttackFeed'
 import ThreatMap from './components/ThreatMap'
 import MLPanel from './components/MLPanel'
 import BlockchainPanel from './components/BlockchainPanel'
+import DataNodePanel from './components/DataNodePanel'
 import './App.css'
 
 const ATTACK_TYPES = ['DDoS', 'DoS', 'Mirai', 'Spoofing', 'Recon', 'BruteForce', 'Web']
@@ -153,7 +154,9 @@ export default function App() {
         <ThreatMap events={events} />
         <MLPanel events={events} />
         <BlockchainPanel blocks={blocks} />
+        <DataNodePanel />
       </main>
     </div>
   )
 }
+

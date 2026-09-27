@@ -26,7 +26,7 @@ export default function BlockchainPanel({ blocks }) {
         ) : (
           <div className="chain-container">
             {displayBlocks.map((block, i) => (
-              <div key={block.batch_num} className="chain-item-wrapper">
+              <div key={`${block.batch_num}-${block.hash || i}-${i}`} className="chain-item-wrapper">
                 <div className={`chain-block ${block.status === 'TAMPERED' ? 'block-tampered' : 'block-verified'} ${i === displayBlocks.length - 1 ? 'animate-slide-in' : ''}`}>
                   <div className="block-num">#{block.batch_num}</div>
                   <div className="block-hash">{truncateHash(block.hash)}</div>

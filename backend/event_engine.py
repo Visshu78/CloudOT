@@ -19,21 +19,33 @@ ZONE_PREFIXES = {
     "Hospital": "HOS"
 }
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+rf_model = None
+label_encoder = None
+engine_ready = False
+X_val_np = None
+
 # Load the Random Forest Model and Preprocessors
 try:
-    preprocessors = joblib.load("preprocessors.joblib")
-    label_encoder = preprocessors['label_encoder']
+    prep_path = os.path.join(BASE_DIR, "preprocessors.joblib")
+    if os.path.exists(prep_path):
+        preprocessors = joblib.load(prep_path)
+        label_encoder = preprocessors.get('label_encoder')
 
     # Load Random Forest model
-    rf_model = joblib.load("rf_model.joblib")
+    model_path = os.path.join(BASE_DIR, "rf_model.joblib")
+    if os.path.exists(model_path):
+        rf_model = joblib.load(model_path)
     
     # Load Validation Dataset for realistic inference samples
-    X_val_tensor, y_val_tensor = torch.load("val_dataset.pt", map_location='cpu')
-    X_val_np = X_val_tensor.numpy()
+    val_path = os.path.join(BASE_DIR, "val_dataset.pt")
+    if os.path.exists(val_path):
+        X_val_tensor, y_val_tensor = torch.load(val_path, map_location='cpu')
+        X_val_np = X_val_tensor.numpy()
+        print(f"[Engine] Ready with {len(X_val_np)} validation samples utilizing Random Forest!")
     
-    print(f"[Engine] Ready with {len(X_val_np)} validation samples utilizing Random Forest!")
-    
-    engine_ready = True
+    if rf_model is not None and label_encoder is not None:
+        engine_ready = True
 except Exception as e:
     print(f"[Warning] ML model failed to load in event_engine: {e}. Falling back to mocks.")
     engine_ready = False
@@ -74,8 +86,17 @@ def predict_event(features: list) -> tuple[str, float, str]:
     severity = severity_from_confidence(confidence)
     return attack_type, confidence, severity
 
+SERVERS = [
+    {"server_id": "EDGE-SRV-EAST-01", "server_ip": "10.240.1.101", "location": "US-East (Virginia)", "zones": ["Downtown", "Airport"]},
+    {"server_id": "EDGE-SRV-WEST-02", "server_ip": "10.240.2.102", "location": "US-West (Oregon)", "zones": ["Harbor", "Industrial"]},
+    {"server_id": "EDGE-SRV-CENTRAL-03", "server_ip": "10.240.3.103", "location": "US-Central (Texas)", "zones": ["Residential", "University"]},
+    {"server_id": "EDGE-SRV-SOUTH-04", "server_ip": "10.240.4.104", "location": "US-South (Florida)", "zones": ["Hospital", "Downtown"]},
+    {"server_id": "EDGE-SRV-EU-05", "server_ip": "10.240.5.105", "location": "EU-Central (Frankfurt)", "zones": ["Airport", "Harbor"]}
+]
+
 def generate_event() -> dict:
-    zone = random.choice(ZONES)
+    server = random.choice(SERVERS)
+    zone = random.choice(server["zones"])
     device_idx = random.randint(1, DEVICES_PER_ZONE)
     device_id = generate_device_id(zone, device_idx)
     
@@ -97,4 +118,6 @@ def generate_event() -> dict:
         "confidence": confidence,
         "severity": severity,
         "verified": True,
+        "server_id": server["server_id"],
+        "server_ip": server["server_ip"]
     }
