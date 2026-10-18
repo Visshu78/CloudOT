@@ -4,6 +4,7 @@ services:
   kafka:
     image: apache/kafka:3.7.0
     container_name: cityshield-kafka
+    restart: always
     ports:
       - '9092:9092'
     environment:
@@ -16,7 +17,7 @@ services:
       - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
       - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
       - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
-      - KAFKA_CLUSTER_ID=cityshield-kafka-cluster-1
+      - KAFKA_CLUSTER_ID=4L622n22Q6qyoaMmZxqEGw
 
   # --- Hadoop HDFS NameNode ---
   namenode:
