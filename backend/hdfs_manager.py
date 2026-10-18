@@ -117,24 +117,33 @@ class HDFSManager:
         # 2. Also write to real WebHDFS if container is connected
         if self.connected or self.check_connection():
             try:
-                date_dir = f"{HDFS_EVENTS_DIR}/date={today}"
-                mkdir_url = f"{self.namenode_url}/webhdfs/v1{date_dir}?op=MKDIRS&user.name={self.user}"
-                requests.put(mkdir_url, timeout=2.0)
-                
-                file_name = f"events_{int(time.time() * 1000)}.json"
-                hdfs_file_path = f"{date_dir}/{file_name}"
-                
-                create_url = (
-                    f"{self.namenode_url}/webhdfs/v1{hdfs_file_path}"
-                    f"?op=CREATE&user.name={self.user}&replication={self.replication}&overwrite=true"
-                )
-                res = requests.put(create_url, allow_redirects=False, timeout=3.0)
-                
-                if res.status_code == 307: # Redirect to DataNode
-                    datanode_url = res.headers.get("Location")
-                    if datanode_url:
-                        content = "\n".join(json.dumps(e) for e in events_to_flush) + "\n"
-                        requests.put(datanode_url, data=content, headers={"Content-Type": "application/octet-stream"}, timeout=5.0)
+                import re
+                events_by_zone = {}
+                for e in events_to_flush:
+                    z = e.get("zone", "Downtown")
+                    events_by_zone.setdefault(z, []).append(e)
+
+                for z, ev_list in events_by_zone.items():
+                    target_hdfs_dir = f"{HDFS_EVENTS_DIR}/zone={z}/date={today}"
+                    mkdir_url = f"{self.namenode_url}/webhdfs/v1{target_hdfs_dir}?op=MKDIRS&user.name={self.user}"
+                    requests.put(mkdir_url, timeout=2.0)
+
+                    file_name = f"events_{int(time.time() * 1000)}.json"
+                    hdfs_file_path = f"{target_hdfs_dir}/{file_name}"
+
+                    create_url = (
+                        f"{self.namenode_url}/webhdfs/v1{hdfs_file_path}"
+                        f"?op=CREATE&user.name={self.user}&replication={self.replication}&overwrite=true"
+                    )
+                    res = requests.put(create_url, allow_redirects=False, timeout=3.0)
+
+                    if res.status_code == 307: # Redirect to DataNode
+                        datanode_url = res.headers.get("Location")
+                        if datanode_url:
+                            # Map docker-internal hostname/ip to localhost port 9864
+                            datanode_url = re.sub(r'://[^:/]+:9864', '://localhost:9864', datanode_url)
+                            content = "\n".join(json.dumps(ev) for ev in ev_list) + "\n"
+                            requests.put(datanode_url, data=content, headers={"Content-Type": "application/octet-stream"}, timeout=5.0)
             except Exception:
                 pass
 

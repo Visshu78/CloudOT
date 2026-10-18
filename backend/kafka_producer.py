@@ -4,17 +4,22 @@ import random
 import uuid
 import torch
 import threading
+import os
 from kafka import KafkaProducer
 from datetime import datetime
 
 # Load Validation Dataset for realistic inference samples
+X_val_np = None
+val_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "val_dataset.pt")
 try:
-    X_val_tensor, y_val_tensor = torch.load("val_dataset.pt", map_location='cpu')
-    X_val_np = X_val_tensor.numpy()
-    print(f"[Producer] Loaded {len(X_val_np)} validation samples.")
+    if os.path.exists(val_path):
+        X_val_tensor, y_val_tensor = torch.load(val_path, map_location='cpu')
+        X_val_np = X_val_tensor.numpy()
+        print(f"[Producer] Loaded {len(X_val_np)} validation samples.")
+    else:
+        print("[Producer] val_dataset.pt not found. Operating with simulated 46-feature IoT flow vectors.")
 except Exception as e:
-    print(f"[Producer] Error loading dataset: {e}. Ensure val_dataset.pt is present.")
-    exit(1)
+    print(f"[Producer] Notice: {e}. Operating with simulated 46-feature IoT flow vectors.")
 
 # Multi-Server / Regional Gateway Node Definitions
 SERVERS = [
@@ -60,9 +65,12 @@ def run_server_worker(server: dict, producer: KafkaProducer, stop_event: threadi
     print(f"[{server_id}] Gateway active on IP {server_ip} servicing zones {zones}")
     
     while not stop_event.is_set():
-        # Pick a random sample from our preprocessed validation set
-        idx = random.randint(0, len(X_val_np) - 1)
-        features = X_val_np[idx].tolist()
+        # Pick a random sample from preprocessed validation set, or generate synthetic vector
+        if X_val_np is not None and len(X_val_np) > 0:
+            idx = random.randint(0, len(X_val_np) - 1)
+            features = X_val_np[idx].tolist()
+        else:
+            features = [float(random.uniform(0.0, 1.0)) for _ in range(46)]
         
         zone = random.choice(zones)
         device_idx = random.randint(1, DEVICES_PER_ZONE)

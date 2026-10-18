@@ -240,6 +240,18 @@ async def startup_event():
 
 # --- REST API: History & System endpoints ---
 
+@app.get("/")
+def root():         
+    """Root landing endpoint with system status, frontend link, and API documentation."""
+    return {
+        "status": "ONLINE",
+        "service": "CityShield IoT Threat Intelligence API",
+        "version": "1.0.0",
+        "dashboard_ui": "http://localhost:5173",
+        "interactive_docs": "/docs",
+        "message": "FastAPI backend is running. For the full cyber command dashboard, navigate to http://localhost:5173 in your browser."
+    }
+
 @app.get("/api/spark/status")
 def get_spark_status():
     """Return PySpark Structured Streaming engine status, session parameters, and micro-batch metrics."""
